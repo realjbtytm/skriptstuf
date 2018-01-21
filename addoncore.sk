@@ -1,0 +1,73 @@
+#Addon Core V 0.1
+
+on load:
+  delete {addon::list::*}
+  delete {addon::enabled::*}
+  delete {addon::disabled::*}
+  wait 20 ticks
+  loop {addon::list::*}:
+    {addon.status.%loop-value%} is not set:
+      set {addon.status.%loop-value%} to false
+      add loop-value to {addon::disabled::*}
+    {addon.status.%loop-value%} is false:
+      add loop-value to {addon::disabled::*}
+    {addon.status.%loop-value%} is true:
+      add loop-value to {addon::enabled::*}
+
+command /addon [<text>] [<text>]:
+  aliases: /add
+  description: Addon Command
+  trigger:
+    if arg 1 is not set:
+      make player execute command "/addon help"
+    else if arg 1 is "enable":
+      if arg 2 is not set:
+        send "&4Error: &cPlease specify a skript." to player
+      else:
+        loop {addon::list::*}:
+          if loop-value-1 does not contain arg 2:
+            send "&4Error: &cPlease specify a valid skript." to player
+          else:
+            loop {addon::disabled::*}:
+              if loop-value-2 contains arg 2:
+                remove arg 2 from {addon::disabled::*}
+                add arg 2 to {addon::enabled::*}
+                set {addon.status.%arg 2%} to true
+                send "&aEnabled &e%arg 2%&a."
+              else:
+                send "&4Error: Skript is already enabled." to player
+    else if arg 1 is "disable":
+      if arg 2 is not set:
+        send "&4Error: &cPlease specify a skript." to player
+      else:
+        loop {addon::list::*}:
+          if loop-value-1 does not contain arg 2:
+            send "&4Error: &cPlease specify a valid skript." to player
+          else:
+            loop {addon::enabled::*}:
+              if loop-value-2 contains arg 2:
+                remove arg 2 from {addon::enabled::*}
+                add arg 2 to {addon::disabled::*}
+                set {addon.status.%arg 2%} to false
+                send "&aDisabled &e%arg 2%&a."
+              else:
+                send "&4Error: Skript is already disabled." to player
+    else if arg 1 is "list":
+      send "&eSkript Addons Found:"
+      loop {addon::list::*}:
+        send "&e%loop-value% by %{%loop-value%.author}%" to player
+      send "&cAddons Disabled:"
+      loop {addon::disabled::*}:
+        send "&c%loop-value%" to player
+      send "&aAddons Enabled:"
+      loop {addon::enabled::*}:
+        send "&a%loop-value%" to player
+    else if arg 1 is "help":
+      send "&6Addon V 0.1 Developed by HyperFlame" to player
+      send "&e/addon <text> [text] - Basic Command" to player
+      send "&e/addon enable <skript> - Enables a skript addon" to player
+      send "&e/addon disable <skript> - Disabled a skript addon" to player
+      send "&e/addon list - Shows a list of Addon skripts and their authors plus if their enabled/disabled" to player
+      send "&e/addon help - Shows this menu" to player
+    else:
+      make player execute command "/addon help"

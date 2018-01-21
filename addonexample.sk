@@ -1,0 +1,32 @@
+#Template Skript as an addon. Must include this code. Failure to comply may result
+#in your addon skript getting denied. We are not editors, and will not fix your
+#skript for you. Please make sure there are no bugs.
+
+options:
+  name: <PLUGINNAMEHERE>
+
+variables:
+  {<PLUGINNAMEHERE>.author} = "<AUTHORNAMEHERE>"
+
+on load:
+  wait 10 ticks
+  add "{@name}" to {addon::list::*}
+  {addon.status.{@name}} is not set:
+    set {addon.status.{@name}} to false
+  send "&aSuccessfully added {@name} to addon list." to CONSOLE
+
+command /<command>:
+  trigger:
+    #!MUST HAVE THIS SECTION IN EVERY COMMAND
+    if {addon.status.{@name}} is false:
+      send "&fUnknown command. Type ""/help"" for help." to players
+      stop
+    else:
+      <INSTERTCODEHERE>
+
+on <event>:
+  #!MUST HAVE THIS SECTION IN EVERY EVENT
+  if {addon.status.{@name}} is false:
+    stop
+  else:
+    <INSTERTCODEHERE>
